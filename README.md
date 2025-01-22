@@ -27,20 +27,21 @@ pip install -r requirements.txt
 ### 1. `dca.py`
 Gradually stakes TAO into multiple subnets using dollar-cost averaging.
 ```bash
-python -m scripts.dca  # Stakes 0.1 TAO in small increments of 0.005
+python -m scripts.dca  
 ```
 
 ### 2. `dca_sell.py`
-Gradually sells alpha holdings from multiple subnets given an array of percentages of alpha targets to sell. 50% will sell 50% of alpha in steps of 'dca_subnet_reduction'. 
+Gradually sells alpha holdings from multiple subnets given an array of percentages of alpha targets to sell. 0.5 will sell 50% of alpha in steps of 'dca_subnet_reduction'. 
 
 ```bash
-python -m scripts.dca_sell  # Sells specified percentages of alpha in small increments given a weights array. This is not DCA, tao dividends are spent as they come. Better Slipage managment will be added. 
+python -m scripts.dca_sell  
 ```
 
 ### 3. `stake_root_dividends.py`
-Automatically reinvests root subnet dividends across multiple subnets.
+Automatically reinvests root subnet dividends across multiple subnets. 
+This is not a DCA, tao dividends are spent as they come. Better Slipage managment will be added. 
 ```bash
-python -m scripts.stake_root_dividends  # Monitors and stakes dividends based on preset percentages
+python -m scripts.stake_root_dividends 
 ```
 
 ## License
