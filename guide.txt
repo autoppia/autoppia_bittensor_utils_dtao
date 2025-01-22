@@ -1,0 +1,17 @@
+#Guide to try DTAO in Testnet
+
+1. install Bittensor rao branch
+git clone https://github.com/opentensor/bittensor.git
+cd bittensor
+python3.11 -m venv venv
+source venv/bin/activate
+git fetch origin rao
+git checkout rao
+python3 -m pip install -e .
+
+2. Install cli, wallet etc following "https://docs.bittensor.com/". 
+
+3. To know how to use new bittensor sdk just inspect async_subtensor class and dataclasses like DynamicInfo etc 
+
+4. To know how bittensor-wallet works you can enter "https://github.com/opentensor/btwallet/blob/main/src/wallet.rs" and check src. 
+Its writen in Rust but you can use chatgpt to find specific stuff. I dont know any other way to see how to use this :/
