@@ -5,7 +5,6 @@ import bittensor
 
 from classes.dtao_helper import DTAOHelper
 from classes.investment_manager import InvestmentManager
-from classes.subnet_staker import SubnetStaker
 from utils.get_my_wallet import get_my_wallet
 
 
@@ -18,7 +17,6 @@ async def main():
     # Instantiate helpers
     helper = DTAOHelper(subtensor)
     investor = InvestmentManager(wallet=my_wallet, subtensor=subtensor)
-    staker = SubnetStaker(wallet=my_wallet, subtensor=subtensor)
 
     # Check initial balance
     start_balance = await helper.get_balance(my_wallet.coldkeypub.ss58_address)

@@ -42,7 +42,7 @@ python -m scripts.dca_sell
 Automatically reinvests root subnet dividends of a validator across multiple subnets. Only the dividends of that validator.
 This is not a DCA, tao dividends are spent as they come. Better Slipage managment will be needed & added. 
 ```bash
-python -m scripts.stake_root_dividends 
+python -m scripts.stake_root_dividends_for_validator --validator_hotkey <VALIDATOR_HOTKEY>
 ```
 
 

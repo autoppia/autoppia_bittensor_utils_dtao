@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+
+import argparse
 import asyncio
 import bittensor
 from dotenv import load_dotenv
@@ -8,7 +10,6 @@ from colorama import Fore, Style
 from utils.get_my_wallet import get_my_wallet
 from classes.subnet_staker import SubnetStaker
 from classes.dtao_helper import DTAOHelper
-
 
 load_dotenv()
 
@@ -28,26 +29,26 @@ def _color_value(value: float, decimals: int = 9) -> str:
     return f"{Fore.CYAN}{value_str}{Style.RESET_ALL}"
 
 
-async def main():
+async def main(validator_hotkey:str):
 
-    # Create the AsyncSubtensor instance
     subtensor = await bittensor.async_subtensor(network='test')
-
     my_wallet = get_my_wallet()
-
-    validator_hotkey = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
 
     staker = SubnetStaker(wallet=my_wallet, subtensor=subtensor)
     helper = DTAOHelper(subtensor=subtensor)
 
-    # Subnets and respective percentages (must sum to 1.0)
     subnets_to_stake = [1, 277, 18, 5]
     subnets_percentages = [0.25, 0.25, 0.25, 0.25]
 
-    old_stake = await helper.get_stake(netuid=0, coldkey_ss58=my_wallet.coldkeypub.ss58_address, hotkey_ss58=validator_hotkey)
+    old_stake = await helper.get_stake(
+        netuid=0,
+        coldkey_ss58=my_wallet.coldkeypub.ss58_address,
+        hotkey_ss58=validator_hotkey
+    )
+
+    old_balance = await helper.get_balance(my_wallet.coldkeypub.ss58_address)
     print(f"Starting TAO balance: {_color_value(float(old_balance.tao))}\n")
 
-    # Track initial alpha balances
     old_alpha_balances = {}
     for netuid in subnets_to_stake:
         old_alpha_balances[netuid] = await staker.get_alpha_balance(netuid)
@@ -67,16 +68,19 @@ async def main():
             print(f"Current block: {current_block}. Waiting for next block...\n")
             await subtensor.wait_for_block(current_block + 1)
 
-            print(await subtensor.get_stake_for_coldkey(coldkey_ss58=my_wallet.coldkeypub.ss58_address))
+            print(await subtensor.get_stake_for_coldkey(
+                coldkey_ss58=my_wallet.coldkeypub.ss58_address
+            ))
             input()
-            new_stake = await helper.get_stake(netuid=0, coldkey_ss58=my_wallet.coldkeypub.ss58_address, hotkey_ss58=validator_hotkey)
+            new_stake = await helper.get_stake(
+                netuid=0,
+                coldkey_ss58=my_wallet.coldkeypub.ss58_address,
+                hotkey_ss58=validator_hotkey
+            )
             dividends = new_stake - old_stake
-            # Are dividends added to free balance or to stake on root?
-
             if dividends > bittensor.Balance(0) and dividends < bittensor.Balance(0.5):
                 print(f"Dividends detected: {_color_value(float(dividends.tao))} TAO\n")
 
-                # Keep track of staking changes in a table
                 stake_rows = []
                 for netuid, pct in zip(subnets_to_stake, subnets_percentages):
                     stake_amount_tao = dividends.tao * pct
@@ -110,7 +114,6 @@ async def main():
             print(f"Error in loop: {e}")
             await asyncio.sleep(5)
 
-    # Final alpha balances
     print("\nFinal Alpha balances on each subnet:")
     final_table_rows = []
     for netuid in subnets_to_stake:
@@ -125,4 +128,14 @@ async def main():
     print(tabulate(final_table_rows, headers=["NetUID", "Old Alpha", "Final Alpha", "Diff"], tablefmt="fancy_grid"))
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--validator_hotkey",
+        type=str,
+        required=True,
+        help="SS58 address of the validator hotkey to sell dividends from"
+    )
+    args = parser.parse_args()
+    validator_hotkey = args.validator_hotkey
+
+    asyncio.run(main(validator_hotkey=validator_hotkey))
