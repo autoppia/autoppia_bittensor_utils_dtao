@@ -1,1 +1,3 @@
 tabulate
+python-dotenv
+colorama

@@ -1,0 +1,2 @@
+1. How can We list validators to stake to them on root? we have to look for their hotkey online? 
+Where is the old list of validators that appeared when delegating. at least in root.

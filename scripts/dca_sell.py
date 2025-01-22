@@ -27,14 +27,14 @@ async def main():
     # Example: subnets and percentages of staked alpha we want to sell
     # (i.e. 25% on netuid=1, 30% on netuid=277, etc.)
     subnets_and_percentages = {
-        1: 0.25,
-        277: 0.30,
-        18: 0.10,
-        5: 0.75,
+        1: 1,
+        277: 1,
+        18: 1,
+        5: 1,
     }
 
     # DCA increment for each iteration (in alpha, not TAO)
-    dca_alpha_reduction = 0.01
+    dca_alpha_reduction = 20
 
     # Perform the percentage-based DCA sell
     final_stakes = await investor.sell_dca(
