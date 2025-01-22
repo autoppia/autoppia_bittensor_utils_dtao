@@ -69,6 +69,8 @@ async def main():
             input()
             new_balance = await helper.get_balance(my_wallet.coldkeypub.ss58_address)
             dividends = new_balance - old_balance
+            # Are dividends added to free balance or to stake on root?
+            # Dividends always 0. Where are dividends going haha?
 
             if dividends > bittensor.Balance(0) and dividends < bittensor.Balance(0.5):
                 print(f"Dividends detected: {_color_value(float(dividends.tao))} TAO\n")

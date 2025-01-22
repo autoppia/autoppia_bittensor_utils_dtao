@@ -28,8 +28,8 @@ async def main():
     print(f"Starting TAO balance: {start_balance}")
 
     # Example 3: Parallel DCA into multiple subnets
-    subnets_to_stake = [0]
-    total_amount_to_stake = 0.25
+    subnets_to_stake = [1,277,18,5]
+    total_amount_to_stake = 1
     dca_increment = 0.1
     final_stakes = await investor.dca(
         target_netuids=subnets_to_stake,
