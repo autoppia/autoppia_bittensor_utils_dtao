@@ -4,9 +4,9 @@ import bittensor
 from bittensor import AsyncSubtensor
 from tabulate import tabulate
 from colorama import Fore, Style
-from .subnet_staker import SubnetStaker
-from classes.dtao_helper import DTAOHelper
-from utils.colors import color_diff, color_value
+from src.shared.subnet_staker import SubnetStaker
+from src.shared.dtao_helper import DTAOHelper
+from src.utils.colors import color_diff, color_value
 
 
 class InvestmentManager:

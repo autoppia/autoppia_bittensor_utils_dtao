@@ -6,10 +6,10 @@ import bittensor
 from dotenv import load_dotenv
 from tabulate import tabulate
 
-from utils.colors import color_diff, color_value
-from utils.get_my_wallet import get_my_wallet
-from classes.subnet_staker import SubnetStaker
-from classes.dtao_helper import DTAOHelper
+from src.utils.colors import color_diff, color_value
+from src.utils.get_my_wallet import get_my_wallet
+from src.shared.subnet_staker import SubnetStaker
+from src.shared.dtao_helper import DTAOHelper
 
 load_dotenv()
 

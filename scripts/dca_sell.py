@@ -3,9 +3,9 @@
 import asyncio
 import bittensor
 
-from classes.dtao_helper import DTAOHelper
-from classes.investment_manager import InvestmentManager
-from utils.get_my_wallet import get_my_wallet
+from src.shared.dtao_helper import DTAOHelper
+from src.investing.investment_manager import InvestmentManager
+from src.utils.get_my_wallet import get_my_wallet
 
 
 async def main():
