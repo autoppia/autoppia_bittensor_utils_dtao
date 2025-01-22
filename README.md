@@ -37,10 +37,10 @@ Gradually sells alpha holdings from multiple subnets given an array of percentag
 python -m scripts.dca_sell  
 ```
 
-### 3. `stake_root_dividends.py` (Not Finished)
+### 3. `stake_root_dividends_for_validator.py` (Not Finished)
 
-Automatically reinvests root subnet dividends across multiple subnets. 
-This is not a DCA, tao dividends are spent as they come. Better Slipage managment will be added. 
+Automatically reinvests root subnet dividends of a validator across multiple subnets. Only the dividends of that validator.
+This is not a DCA, tao dividends are spent as they come. Better Slipage managment will be needed & added. 
 ```bash
 python -m scripts.stake_root_dividends 
 ```
