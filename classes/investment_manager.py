@@ -4,8 +4,9 @@ import bittensor
 from bittensor import AsyncSubtensor
 from tabulate import tabulate
 from colorama import Fore, Style
-from .subnet_staker import SubnetStaker  # Adjust the import path if needed
+from .subnet_staker import SubnetStaker
 from classes.dtao_helper import DTAOHelper
+from utils.colors import color_diff, color_value
 
 
 class InvestmentManager:
@@ -14,27 +15,6 @@ class InvestmentManager:
         self.subtensor = subtensor
         self.staker = SubnetStaker(wallet=self.wallet, subtensor=self.subtensor)
         self.helper = DTAOHelper(subtensor=subtensor)
-
-    def _color_diff(self, value: float) -> str:
-        """
-        Displays difference with color and sign.
-        e.g. +0.000001234 or -0.000000567
-        """
-        # Format with e.g. 9 decimals.
-        diff_str = f"{value:+.9f}"
-        if value > 0:
-            return f"{Fore.GREEN}{diff_str}{Style.RESET_ALL}"
-        elif value < 0:
-            return f"{Fore.RED}{diff_str}{Style.RESET_ALL}"
-        else:
-            return f"{diff_str}"
-
-    def _color_value(self, value: float, decimals=9) -> str:
-        """
-        Displays a float with a certain number of decimals, in cyan.
-        """
-        value_str = f"{value:.{decimals}f}"
-        return f"{Fore.CYAN}{value_str}{Style.RESET_ALL}"
 
     async def dca(
         self,
@@ -77,9 +57,9 @@ class InvestmentManager:
                     # Old alpha with 9 decimals
                     f"{float(old_stake.tao):.9f}",
                     # New alpha in cyan, 9 decimals
-                    self._color_value(float(new_stake.tao), decimals=9),
+                    color_value(float(new_stake.tao), decimals=9),
                     # alpha diff with color
-                    self._color_diff(alpha_diff),
+                    color_diff(alpha_diff),
                     # price with 9 decimals
                     f"{float(price):.9f}",
                     "Staked"
@@ -99,7 +79,7 @@ class InvestmentManager:
             tao_balance = await self.helper.get_balance(address=self.wallet.coldkeypub.ss58_address)
             print(
                 f"Wallet TAO Balance after iteration #{iterations}: "
-                f"{self._color_value(float(tao_balance.tao), decimals=9)}\n"
+                f"{color_value(float(tao_balance.tao), decimals=9)}\n"
             )
 
             await self.staker.subtensor.wait_for_block()
@@ -182,8 +162,8 @@ class InvestmentManager:
                 table_rows.append([
                     netuid,
                     f"{float(old_stake.tao):.9f}",
-                    self._color_value(float(new_stake.tao), decimals=9),
-                    self._color_diff(alpha_diff),
+                    color_value(float(new_stake.tao), decimals=9),
+                    color_diff(alpha_diff),
                     f"{float(price):.9f}",
                     "Unstaked"
                 ])
@@ -202,7 +182,7 @@ class InvestmentManager:
             tao_balance = await self.helper.get_balance(address=self.wallet.coldkeypub.ss58_address)
             print(
                 f"Wallet TAO Balance after iteration #{iteration}: "
-                f"{self._color_value(float(tao_balance.tao), decimals=9)}\n"
+                f"{color_value(float(tao_balance.tao), decimals=9)}\n"
             )
 
             await self.staker.subtensor.wait_for_block()

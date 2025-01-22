@@ -5,28 +5,13 @@ import asyncio
 import bittensor
 from dotenv import load_dotenv
 from tabulate import tabulate
-from colorama import Fore, Style
 
+from utils.colors import color_diff, color_value
 from utils.get_my_wallet import get_my_wallet
 from classes.subnet_staker import SubnetStaker
 from classes.dtao_helper import DTAOHelper
 
 load_dotenv()
-
-
-def _color_diff(value: float) -> str:
-    diff_str = f"{value:+.9f}"
-    if value > 0:
-        return f"{Fore.GREEN}{diff_str}{Style.RESET_ALL}"
-    elif value < 0:
-        return f"{Fore.RED}{diff_str}{Style.RESET_ALL}"
-    else:
-        return diff_str
-
-
-def _color_value(value: float, decimals: int = 9) -> str:
-    value_str = f"{value:.{decimals}f}"
-    return f"{Fore.CYAN}{value_str}{Style.RESET_ALL}"
 
 
 async def main(validator_hotkey:str):
@@ -47,7 +32,7 @@ async def main(validator_hotkey:str):
     )
 
     old_balance = await helper.get_balance(my_wallet.coldkeypub.ss58_address)
-    print(f"Starting TAO balance: {_color_value(float(old_balance.tao))}\n")
+    print(f"Starting TAO balance: {color_value(float(old_balance.tao))}\n")
 
     old_alpha_balances = {}
     for netuid in subnets_to_stake:
@@ -58,7 +43,7 @@ async def main(validator_hotkey:str):
     for netuid in subnets_to_stake:
         table_rows.append([
             netuid,
-            _color_value(float(old_alpha_balances[netuid].tao))
+            color_value(float(old_alpha_balances[netuid].tao))
         ])
     print(tabulate(table_rows, headers=["NetUID", "Alpha"], tablefmt="fancy_grid"), "\n")
 
@@ -68,18 +53,14 @@ async def main(validator_hotkey:str):
             print(f"Current block: {current_block}. Waiting for next block...\n")
             await subtensor.wait_for_block(current_block + 1)
 
-            print(await subtensor.get_stake_for_coldkey(
-                coldkey_ss58=my_wallet.coldkeypub.ss58_address
-            ))
-            input()
             new_stake = await helper.get_stake(
                 netuid=0,
                 coldkey_ss58=my_wallet.coldkeypub.ss58_address,
                 hotkey_ss58=validator_hotkey
             )
             dividends = new_stake - old_stake
-            if dividends > bittensor.Balance(0) and dividends < bittensor.Balance(0.5):
-                print(f"Dividends detected: {_color_value(float(dividends.tao))} TAO\n")
+            if dividends > bittensor.Balance(0):
+                print(f"Dividends detected: {color_value(float(dividends.tao))} TAO\n")
 
                 stake_rows = []
                 for netuid, pct in zip(subnets_to_stake, subnets_percentages):
@@ -92,8 +73,8 @@ async def main(validator_hotkey:str):
                         stake_rows.append([
                             netuid,
                             f"{float(old_subnet_alpha.tao):.9f}",
-                            _color_value(float(new_subnet_alpha.tao)),
-                            _color_diff(alpha_diff),
+                            color_value(float(new_subnet_alpha.tao)),
+                            color_diff(alpha_diff),
                             "Staked"
                         ])
 
@@ -102,7 +83,7 @@ async def main(validator_hotkey:str):
                     print(tabulate(stake_rows, headers=headers, tablefmt="fancy_grid"))
 
                 old_balance = await helper.get_balance(my_wallet.coldkeypub.ss58_address)
-                print(f"\nBalance after staking dividends: {_color_value(float(old_balance.tao))}\n")
+                print(f"\nBalance after staking dividends: {color_value(float(old_balance.tao))}\n")
 
             else:
                 print("No new dividends this block.\n")
@@ -121,9 +102,9 @@ async def main(validator_hotkey:str):
         diff = float(final_alpha.tao) - float(old_alpha_balances[netuid].tao)
         final_table_rows.append([
             netuid,
-            _color_value(float(old_alpha_balances[netuid].tao)),
-            _color_value(float(final_alpha.tao)),
-            _color_diff(diff)
+            color_value(float(old_alpha_balances[netuid].tao)),
+            color_value(float(final_alpha.tao)),
+            color_diff(diff)
         ])
     print(tabulate(final_table_rows, headers=["NetUID", "Old Alpha", "Final Alpha", "Diff"], tablefmt="fancy_grid"))
 
