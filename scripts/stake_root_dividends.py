@@ -44,7 +44,7 @@ async def main():
     subnets_to_stake = [1, 277, 18, 5]
     subnets_percentages = [0.25, 0.25, 0.25, 0.25]
 
-    old_balance = await helper.get_stake(netuid=0, coldkey_ss58=my_wallet.coldkeypub.ss58_address, hotkey_ss58=validator_hotkey)
+    old_stake = await helper.get_stake(netuid=0, coldkey_ss58=my_wallet.coldkeypub.ss58_address, hotkey_ss58=validator_hotkey)
     print(f"Starting TAO balance: {_color_value(float(old_balance.tao))}\n")
 
     # Track initial alpha balances
@@ -69,8 +69,8 @@ async def main():
 
             print(await subtensor.get_stake_for_coldkey(coldkey_ss58=my_wallet.coldkeypub.ss58_address))
             input()
-            new_balance = await helper.get_stake(netuid=0, coldkey_ss58=my_wallet.coldkeypub.ss58_address, hotkey_ss58=validator_hotkey)
-            dividends = new_balance - old_balance
+            new_stake = await helper.get_stake(netuid=0, coldkey_ss58=my_wallet.coldkeypub.ss58_address, hotkey_ss58=validator_hotkey)
+            dividends = new_stake - old_stake
             # Are dividends added to free balance or to stake on root?
 
             if dividends > bittensor.Balance(0) and dividends < bittensor.Balance(0.5):
