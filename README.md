@@ -44,5 +44,6 @@ This is not a DCA, tao dividends are spent as they come. Better Slipage managmen
 python -m scripts.stake_root_dividends 
 ```
 
+
 ## License
-MIT License
+From Autoppia Team with <3
