@@ -41,6 +41,9 @@ class SubnetStaker:
             tao_amount=tao_amount
         )
 
+        # Wait for the next block (optional)
+        await self.subtensor.wait_for_block()
+
         # Fetch updated alpha balance (staked amount)
         new_alpha = await self.get_alpha_balance(netuid, hotkey)
         print(
@@ -48,8 +51,6 @@ class SubnetStaker:
             f"price={subnet_info.price}, new_alpha={new_alpha}, response={response}"
         )
 
-        # Wait for the next block (optional)
-        await self.subtensor.wait_for_block()
         return new_alpha
 
     async def sell_alpha(
@@ -79,6 +80,8 @@ class SubnetStaker:
             amount=alpha_amount,
         )
 
+        await self.subtensor.wait_for_block()
+
         # For verification, check how much alpha remains staked
         remaining_alpha = await self.get_alpha_balance(netuid, hotkey)
         print(
@@ -86,7 +89,6 @@ class SubnetStaker:
             f"price={subnet_info.price}, remaining_alpha={remaining_alpha}, response={response}"
         )
 
-        await self.subtensor.wait_for_block()
         return remaining_alpha
 
     async def get_alpha_balance(
