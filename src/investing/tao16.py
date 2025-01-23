@@ -9,7 +9,7 @@ from src.investing.investment_manager import InvestmentManager
 from src.utils.colors import color_diff, color_value
 
 
-class Tao64:
+class Tao16:
     def __init__(
         self,
         wallet: bittensor.wallet,
@@ -19,7 +19,7 @@ class Tao64:
         self.subtensor = subtensor
         self.manager = InvestmentManager(wallet, subtensor)
 
-    async def get_top_64_weights(self) -> Dict[int, float]:
+    async def get_top_N_weights(self, N:int = 16) -> Dict[int, float]:
         subnets = await self.subtensor.get_all_subnets()
         if not subnets:
             return {}
@@ -28,27 +28,21 @@ class Tao64:
             f"\n{Fore.GREEN}Explanation:{Style.RESET_ALL} "
             f"We compute market cap = price (TAO) * alpha_out (TAO). "
             f"Then we sort by descending market cap and pick top 64. "
-            f"Weight = market cap / sum_of_top64_marketcaps.\n"
+            f"Weight = (market cap / sum_of_top64_marketcaps).\n"
         )
 
-        # Build a list (netuid, price, alpha_out, market_cap)
         info_list = []
         for d in subnets:
-            # Market cap
             mcap = float(d.price.tao) * float(d.alpha_out.tao)
             info_list.append((d.netuid, float(d.price.tao), float(d.alpha_out.tao), mcap))
 
-        # Sort by market cap descending
         info_list.sort(key=lambda x: x[3], reverse=True)
-        # Take top 64
         top_64 = info_list[:64]
 
-        # Sum of top64 mcap
         total_mcap = sum(x[3] for x in top_64)
         if total_mcap <= 0:
             return {}
 
-        # Prepare rows for printing
         table_rows = []
         weights = {}
         for (netuid, price_val, alpha_out_val, mcap) in top_64:
@@ -62,16 +56,15 @@ class Tao64:
                 f"{weight:.6f}"
             ])
 
-        # Print table
         headers = ["NetUID", "Price (TAO)", "Alpha Out (TAO)", "Market Cap", "Weight"]
         print(tabulate(table_rows, headers=headers, tablefmt="fancy_grid"))
 
-        # Also show final dict of weights
         print(f"\nFinal Weights Dict (top 64): {weights}\n")
+        input("Press Enter to proceed or Ctrl+C to cancel and inspect weights... ")
 
         return weights
 
-    async def dca_tao64(
+    async def dca_Tao16(
         self,
         total_stake: float,
         increment: float
@@ -90,8 +83,8 @@ class Tao64:
         while current_spent < total_stake:
             iterations += 1
             table_rows = []
-            iteration_header = f"TAO64 DCA Iteration #{iterations} (Spent: {current_spent:.9f}/{total_stake:.9f})"
-            print(f"{Fore.YELLOW}{iteration_header}{Style.RESET_ALL}")
+            header = f"Tao16 DCA Iteration #{iterations} (Spent: {current_spent:.9f}/{total_stake:.9f})"
+            print(f"{Fore.YELLOW}{header}{Style.RESET_ALL}")
 
             tasks = []
             for netuid, w in weighted_subnets:
@@ -105,6 +98,7 @@ class Tao64:
                     continue
 
                 old_stake = stake_info.get(netuid, bittensor.Balance.from_tao(0))
+                print(f"Staking {stake_amount:.9f} TAO on netuid={netuid} (weight={w:.6f}).")
                 tasks.append(asyncio.create_task(
                     self._stake_and_fetch(netuid, stake_amount, old_stake)
                 ))
@@ -125,14 +119,7 @@ class Tao64:
                 ])
 
             if table_rows:
-                headers = [
-                    "NetUID",
-                    "Old Alpha",
-                    "New Alpha",
-                    "Alpha Diff",
-                    "Price",
-                    "Action"
-                ]
+                headers = ["NetUID", "Old Alpha", "New Alpha", "Alpha Diff", "Price", "Action"]
                 print(tabulate(table_rows, headers=headers, tablefmt="fancy_grid"))
 
             tao_balance = await self.manager.helper.get_balance(

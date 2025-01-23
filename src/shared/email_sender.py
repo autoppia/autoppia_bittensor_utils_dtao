@@ -34,7 +34,7 @@ class EmailSender:
         context = ssl.create_default_context()
 
         try:
-            with smtplib.SMTP_SSL("smtp.serviciodecorreo.es", 465, context=context) as server:
+            with smtplib.SMTP_SSL(os.getenv("EMAIL_SERVER"), os.getenv("EMAIL_PORT"), context=context) as server:
                 server.login(self.from_email, self.from_password)
                 logging.info("SMTP server login successful.")
 

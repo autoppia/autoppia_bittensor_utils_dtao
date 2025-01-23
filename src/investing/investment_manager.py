@@ -113,13 +113,13 @@ class InvestmentManager:
         for netuid in subnets_and_percentages:
             alpha_per_subnet[netuid] = await self.staker.get_alpha_balance(netuid)
 
-        total_alpha = sum(alpha_per_subnet.values())
-        sum_of_percentages = sum(subnets_and_percentages.values())
+        print("Subnet Stakes:")
+        print(alpha_per_subnet)
 
         # Target alpha dict
         target_alpha_dict = {
-            netuid: total_alpha * (pct / sum_of_percentages)
-            for netuid, pct in subnets_and_percentages.items()
+            netuid: alpha - alpha * subnets_and_percentages[netuid]
+            for netuid, alpha in alpha_per_subnet.items()
         }
 
         stake_info: Dict[int, bittensor.Balance] = {}
