@@ -12,8 +12,8 @@ def parse_arguments():
     parser.add_argument(
         "--netuids",
         type=int,
-        nargs='+',
-        required=True,
+        nargs='*',  # Accepts an empty list if no arguments are provided
+        default=[],  # Sets the default value to an empty list
         help="List of netuids to stake into (e.g., 1 277 18 5)."
     )
     parser.add_argument(
@@ -23,7 +23,7 @@ def parse_arguments():
         help="Increment amount for DCA staking."
     )
     parser.add_argument(
-        "--total-stake",
+        "--total",
         type=float,
         required=True,
         help="Total amount to stake across the specified netuids."
@@ -50,7 +50,7 @@ async def main():
     # Perform DCA into the specified subnets
     final_stakes = await investor.dca(
         target_netuids=args.netuids,
-        total_stake=args.total_stake,
+        total_stake=args.total,
         increment=args.increment
     )
 

@@ -16,21 +16,21 @@ async def main():
     parser.add_argument(
         "--netuids",
         type=int,
-        nargs='+',
-        required=True,
+        nargs='*',  # Accepts an empty list if no arguments are provided
+        default=[],  # Sets the default value to an empty list
         help="List of netuids to operate on (e.g., 1 277 18 5)."
     )
     parser.add_argument(
         "--percentages",
         type=float,
-        nargs='+',
-        required=True,
+        nargs='*',  # Accepts an empty list if no arguments are provided
+        default=[],  # Sets the default value to an empty list
         help="List of percentages corresponding to the netuids (e.g., 0.25 0.3 0.2 0.1)."
     )
     parser.add_argument(
         "--reduction",
         type=float,
-        default=5.0,
+        default=1,
         help="DCA increment for each iteration in alpha (default: 5)."
     )
     args = parser.parse_args()
