@@ -1,6 +1,6 @@
 # DTAO Helper Scripts
 
-Investment management tools for Bittensor testnet, featuring market-cap weighted and DCA strategies.
+Advanced investment management tools for Bittensor testnet, featuring market cap-weighted and DCA strategies.
 
 ## Quick Setup
 
@@ -24,37 +24,69 @@ pip install -r requirements.txt
 
 ## Investment Scripts
 
-### 1. TAO16 (`tao16.py`)
-Market cap-weighted investment in top 16 subnets (S&P 500 analogy).
+### 1. TaoN Market Cap Weighted (`tao_n.py`)
+Invest in top N subnets using market cap weighting strategy (similar to S&P 500 index). Commonly used as TAO64 for top 64 subnets.
 
 ```bash
-python -m scripts.tao16 --total 1.0 --increment 0.1 --network test
+# Example for top 64 subnets
+python -m scripts.tao_n --total 1.0 --increment 0.1 --network test --n 64
+
+# Example for top 16 subnets
+python -m scripts.tao_n --total 1.0 --increment 0.1 --network test --n 16
 ```
 
-### 2. TAO64 (`tao64.py`)
-DCA investment across specified subnets.
+Options:
+- `--n`: Number of top subnets to target (default: 16)
+- `--total`: Total TAO to invest
+- `--increment`: DCA increment size
+- `--network`: Choose 'test' or 'main' network
+
+### 2. DCA Investment (`dca.py`)
+Dollar-cost averaging investment across specified subnets.
 
 ```bash
-python -m scripts.tao64 --netuids 1 2 3 --total 1.0 --increment 0.1
+# Specific subnets
+python -m scripts.dca --netuids 1 2 3 --total 1.0 --increment 0.1
+
+# All available subnets
+python -m scripts.dca --total 1.0 --increment 0.1
 ```
 
 Options:
 - Empty `--netuids`: Auto-selects all available subnets
 - Specific `--netuids`: Targets only listed subnets
+- `--total`: Total amount to stake
+- `--increment`: DCA increment size
 
 ### 3. DCA Sell (`dca_sell.py`)
-Percentage-based position reduction.
+Percentage-based position reduction across subnets.
 
 ```bash
 python -m scripts.dca_sell --netuids 1 2 --percentages 0.5 0.3 --reduction 5.0
 ```
 
-### 4. Stake Root Dividends (Beta)
-Auto-reinvests validator dividends.
+Options:
+- `--netuids`: Target subnet IDs
+- `--percentages`: Reduction percentage per subnet
+- `--reduction`: Total reduction amount
+
+### 4. Stake Root Dividends (`stake_root_dividends.py`)
+Automatically reinvests validator dividends.
 
 ```bash
-python -m scripts.stake_root_dividends_for_validator --validator_hotkey HOTKEY
+python -m scripts.stake_root_dividends --validator_hotkey HOTKEY
 ```
+
+## Features
+
+- Market cap-weighted investment strategies
+- Configurable subnet targeting (N top subnets)
+- Dollar-cost averaging (DCA) implementation
+- Position reduction management
+- Dividend reinvestment automation
+- Support for both testnet and mainnet
+- Detailed balance tracking and reporting
+- Color-coded console output
 
 ## License
 From Autoppia Team with ❤️
