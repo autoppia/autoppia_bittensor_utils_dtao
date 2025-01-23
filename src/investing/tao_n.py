@@ -9,17 +9,22 @@ from src.investing.investment_manager import InvestmentManager
 from src.utils.colors import color_diff, color_value
 
 
-class Tao16:
+class TaoN:
     def __init__(
         self,
         wallet: bittensor.wallet,
-        subtensor: AsyncSubtensor
+        subtensor: AsyncSubtensor,
+        N: int = 16
     ):
         self.wallet = wallet
         self.subtensor = subtensor
         self.manager = InvestmentManager(wallet, subtensor)
+        self.N = N
 
-    async def get_top_N_weights(self, N:int = 16) -> Dict[int, float]:
+    async def get_top_N_weights(self, N: int = None) -> Dict[int, float]:
+        if N is None:
+            N = self.N
+
         subnets = await self.subtensor.get_all_subnets()
         if not subnets:
             return {}
@@ -27,8 +32,8 @@ class Tao16:
         print(
             f"\n{Fore.GREEN}Explanation:{Style.RESET_ALL} "
             f"We compute market cap = price (TAO) * alpha_out (TAO). "
-            f"Then we sort by descending market cap and pick top 64. "
-            f"Weight = (market cap / sum_of_top64_marketcaps).\n"
+            f"Then we sort by descending market cap and pick top {N}. "
+            f"Weight = (market cap / sum_of_topN_marketcaps).\n"
         )
 
         info_list = []
@@ -37,15 +42,15 @@ class Tao16:
             info_list.append((d.netuid, float(d.price.tao), float(d.alpha_out.tao), mcap))
 
         info_list.sort(key=lambda x: x[3], reverse=True)
-        top_64 = info_list[:64]
+        top_n = info_list[:N]
 
-        total_mcap = sum(x[3] for x in top_64)
+        total_mcap = sum(x[3] for x in top_n)
         if total_mcap <= 0:
             return {}
 
         table_rows = []
         weights = {}
-        for (netuid, price_val, alpha_out_val, mcap) in top_64:
+        for (netuid, price_val, alpha_out_val, mcap) in top_n:
             weight = mcap / total_mcap
             weights[netuid] = weight
             table_rows.append([
@@ -59,21 +64,25 @@ class Tao16:
         headers = ["NetUID", "Price (TAO)", "Alpha Out (TAO)", "Market Cap", "Weight"]
         print(tabulate(table_rows, headers=headers, tablefmt="fancy_grid"))
 
-        print(f"\nFinal Weights Dict (top 64): {weights}\n")
+        print(f"\nFinal Weights Dict (top {N}): {weights}\n")
         input("Press Enter to proceed or Ctrl+C to cancel and inspect weights... ")
 
         return weights
 
-    async def dca_Tao16(
+    async def dca_TaoN(
         self,
         total_stake: float,
-        increment: float
+        increment: float,
+        N: int = None
     ) -> Dict[int, bittensor.Balance]:
+        if N is None:
+            N = self.N
+
         stake_info: Dict[int, bittensor.Balance] = {}
         current_spent = 0.0
         iterations = 0
 
-        weights = await self.get_top_64_weights()
+        weights = await self.get_top_N_weights(N)
         if not weights:
             print("No subnets or zero total market cap. Aborting.")
             return {}
@@ -83,7 +92,7 @@ class Tao16:
         while current_spent < total_stake:
             iterations += 1
             table_rows = []
-            header = f"Tao16 DCA Iteration #{iterations} (Spent: {current_spent:.9f}/{total_stake:.9f})"
+            header = f"TaoN DCA Iteration #{iterations} (Spent: {current_spent:.9f}/{total_stake:.9f})"
             print(f"{Fore.YELLOW}{header}{Style.RESET_ALL}")
 
             tasks = []
