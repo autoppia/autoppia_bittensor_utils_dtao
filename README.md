@@ -24,8 +24,8 @@ pip install -r requirements.txt
 
 ## Investment Scripts
 
-### 1. TaoN Market Cap Weighted (`tao_n.py`)
-Invest in top N subnets using market cap weighting strategy (similar to S&P 500 index). Commonly used as TAO64 for top 64 subnets.
+### 1. TAO64 - S&P 500 Style Investment Strategy
+Dollar-cost averaging into the top 64 subnets weighted by market capitalization, mirroring the S&P 500's investment approach. Configurable to any number of top subnets (e.g., TAO16 for top 16).
 
 ```bash
 # Example for top 64 subnets
@@ -62,7 +62,7 @@ Options:
 Percentage-based position reduction across subnets.
 
 ```bash
-python -m scripts.dca_sell --netuids 1 2 --percentages 0.5 0.3 --reduction 5.0
+python -m scripts.dca_sell --netuids 1 2 --percentages 0.5 0.3 --reduction 10
 ```
 
 Options:
