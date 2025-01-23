@@ -1,8 +1,16 @@
 # DTAO Helper Scripts
 
-A collection of scripts for managing DTAO investments in Bittensor testnet.
+A collection of scripts for managing DTAO investments in Bittensor testnet, featuring automated investment strategies inspired by traditional finance.
 
-## Quick Setup to try DTAO
+## Overview
+
+This toolkit provides various investment strategies for the Bittensor network:
+- Dollar-cost averaging (DCA) for stake management
+- Automated selling with percentage-based targets
+- S&P 500-inspired weighted investment in top subnets (TAO16)
+- Dividend reinvestment for validators
+
+## Quick Setup
 
 1. Clone and install Bittensor (rao branch):
 ```bash
@@ -20,31 +28,52 @@ python3 -m pip install -e .
 pip install -r requirements.txt
 ```
 
-3. Set up your wallet password in `.env` (see `.env.template`) and follow instructions
+3. Configure wallet password in `.env` (template available in `.env.template`)
 
-## Available Scripts
+## Investment Scripts
 
-### 1. `dca.py`
-Gradually stakes TAO into multiple subnets using dollar-cost averaging.
-```bash
-python -m scripts.dca  
-```
-
-### 2. `dca_sell.py`
-Gradually sells alpha holdings from multiple subnets given an array of percentages of alpha targets to sell. 0.5 will sell 50% of alpha in steps of 'dca_subnet_reduction'. 
+### 1. TAO16 Strategy (`tao16.py`)
+Implements a market cap-weighted investment strategy across top 16 subnets, similar to S&P 500 index investing.
 
 ```bash
-python -m scripts.dca_sell  
+python -m scripts.tao16 [--total-stake AMOUNT] [--increment AMOUNT]
 ```
 
-### 3. `stake_root_dividends_for_validator.py` (Not Finished)
+Arguments:
+- `--total-stake`: Total TAO to invest (default: 1.0)
+- `--increment`: DCA increment size (default: 0.1)
 
-Automatically reinvests root subnet dividends of a validator across multiple subnets. Only the dividends of that validator.
-This is not a DCA, tao dividends are spent as they come. Better Slipage managment will be needed & added. 
+### 2. Dollar-Cost Averaging (`dca.py`)
+Gradually stakes TAO across multiple subnets.
+
 ```bash
-python -m scripts.stake_root_dividends_for_validator --validator_hotkey <VALIDATOR_HOTKEY>
+python -m scripts.dca --netuids NETUID [NETUID ...] --increment AMOUNT --total-stake AMOUNT
 ```
 
+Arguments:
+- `--netuids`: Target subnet IDs
+- `--increment`: DCA increment size
+- `--total-stake`: Total investment amount
+
+### 3. DCA Sell (`dca_sell.py`)
+Gradually reduces positions in specified subnets.
+
+```bash
+python -m scripts.dca_sell --netuids NETUID [NETUID ...] --percentages PERCENT [PERCENT ...] --reduction AMOUNT
+```
+
+Arguments:
+- `--netuids`: Target subnet IDs
+- `--percentages`: Selling targets per subnet (0.5 = 50%)
+- `--reduction`: Alpha reduction per iteration (default: 5.0)
+
+### 4. Dividend Reinvestment (`stake_root_dividends.py`)
+Automatically reinvests validator root subnet dividends (Beta).
+
+```bash
+python -m scripts.stake_root_dividends_for_validator --validator_hotkey HOTKEY
+```
 
 ## License
-From Autoppia Team with <3
+
+From Autoppia Team with ❤️

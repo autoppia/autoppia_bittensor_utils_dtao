@@ -1,8 +1,0 @@
-- it was difficult to find the hotkey of a validator to delegate to on root. My btcli outputs do not show the complete hotkey. I had to use subnet 1 owner as a 
-good validator to delegate on root. But there should be something simpler. 
-
-- need to know how much of market cap is due to alpha holdings on a particular subnet to know how much emission a subnet would loose if we decide to sell all alpha.
-
-- include dollars conversions and Miners reports: daily alpha > daily tao > daily dollars. 
-
-- 
