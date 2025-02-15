@@ -24,24 +24,24 @@ pip install -r requirements.txt
 
 ## Investment Scripts
 
-### 1. TAO64 - S&P 500 Style Investment Strategy
+### 1. TAO64 - S&P 500 Style Investment Strategy (EXPERIMENTAL)
 Dollar-cost averaging into the top 64 subnets weighted by market capitalization, mirroring the S&P 500's investment approach. Configurable to any number of top subnets (e.g., TAO16 for top 16).
 
 ```bash
 # Example for top 64 subnets
-python -m scripts.tao_n --total 1.0 --increment 0.1 --network test --n 64
+python -m scripts.tao_n --total 0.1 --days 30 --n 16
 
 # Example for top 16 subnets
-python -m scripts.tao_n --total 1.0 --increment 0.1 --network test --n 16
+python -m scripts.tao_n --total 0.1 --days 30 --n 34
 ```
 
 Options:
 - `--n`: Number of top subnets to target (default: 16)
 - `--total`: Total TAO to invest
-- `--increment`: DCA increment size
+- `--days`: Number of days to distirbute the dca. 
 - `--network`: Choose 'test' or 'main' network
 
-### 2. DCA Investment (`dca.py`)
+### 2. DCA Investment (`dca.py`)(WORKING)
 Dollar-cost averaging investment across specified subnets.
 
 ```bash
@@ -58,17 +58,17 @@ Options:
 - `--total`: Total amount to stake
 - `--increment`: DCA increment size
 
-### 3. DCA Sell (`dca_sell.py`)
+### 3. DCA Sell (`dca_sell.py`)(WORKING)
 Percentage-based position reduction across subnets.
 
 ```bash
-python -m scripts.dca_sell --netuids 1 2 --percentages 0.5 0.3 --reduction 10
+python -m scripts.dca_sell --netuids 1 2 --percentages 0.5 0.3 --sell_percentage 50
 ```
 
 Options:
 - `--netuids`: Target subnet IDs
 - `--percentages`: Reduction percentage per subnet
-- `--reduction`: Total reduction amount
+- `--sell_percentage`: Percentage per block to sell. 1/7200 will sell total in 1 day.
 
 ### 4. Stake Root Dividends (`stake_root_dividends.py`)(EXPERIMENTAL!)
 Automatically reinvests validator dividends.

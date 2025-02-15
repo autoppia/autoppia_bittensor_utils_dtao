@@ -38,7 +38,7 @@ class TaoN:
         if N is None:
             N = self.N
 
-        subnets = await self.subtensor.get_all_subnets()
+        subnets = await self.subtensor.all_subnets()
         if not subnets:
             return {}
 
