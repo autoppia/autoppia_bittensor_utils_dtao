@@ -74,7 +74,7 @@ class DTAOHelper:
         address: str,
     ) -> bittensor.Balance:
         addresses_balances_dict = await self.subtensor.get_balance(address)
-        return addresses_balances_dict[address]
+        return addresses_balances_dict
 
     async def metagraph(
         self,

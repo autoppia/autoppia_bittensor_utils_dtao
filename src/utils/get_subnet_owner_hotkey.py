@@ -4,7 +4,7 @@ from bittensor.core.chain_data import DynamicInfo
 
 
 async def get_subnet_owner_hotkey(netuid:int):
-    subtensor = await bittensor.async_subtensor(network='test')
+    subtensor = await bittensor.async_subtensor().initialize()
     data:DynamicInfo = await subtensor.subnet(netuid=netuid)
     hotkey = data.owner_hotkey
     print(hotkey)

@@ -35,7 +35,7 @@ async def main():
     args = parse_arguments()
 
     # Create the AsyncSubtensor instance
-    subtensor = await bittensor.async_subtensor(network='test')
+    subtensor = await bittensor.async_subtensor().initialize()
 
     my_wallet = get_my_wallet(unlock=True)
 

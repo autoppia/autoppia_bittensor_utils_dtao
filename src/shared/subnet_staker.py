@@ -37,8 +37,8 @@ class SubnetStaker:
         response = await self.subtensor.add_stake(
             wallet=self.wallet,
             netuid=netuid,
-            hotkey=hotkey,
-            tao_amount=tao_amount
+            hotkey_ss58=hotkey,
+            amount=tao_amount
         )
 
         # Wait for the next block (optional)
@@ -76,7 +76,7 @@ class SubnetStaker:
         response = await self.subtensor.unstake(
             wallet=self.wallet,
             netuid=netuid,
-            hotkey=hotkey,
+            hotkey_ss58=hotkey,
             amount=alpha_amount,
         )
 

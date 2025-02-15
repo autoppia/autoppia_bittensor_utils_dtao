@@ -54,13 +54,9 @@ class InvestmentManager:
 
                 table_rows.append([
                     netuid,
-                    # Old alpha with 9 decimals
                     f"{float(old_stake.tao):.9f}",
-                    # New alpha in cyan, 9 decimals
                     color_value(float(new_stake.tao), decimals=9),
-                    # alpha diff with color
                     color_diff(alpha_diff),
-                    # price with 9 decimals
                     f"{float(price):.9f}",
                     "Staked"
                 ])
@@ -93,7 +89,6 @@ class InvestmentManager:
         old_stake: bittensor.Balance
     ):
         subnet_info = await self.staker.subtensor.subnet(netuid)
-        # Buy alpha with TAO amount = increment
         await self.staker.buy_alpha(netuid=netuid, tao_amount=increment)
         new_stake = await self.staker.get_alpha_balance(netuid)
         alpha_diff = float(new_stake.tao) - float(old_stake.tao)
@@ -102,25 +97,36 @@ class InvestmentManager:
     async def sell_dca(
         self,
         subnets_and_percentages: Dict[int, float],
-        dca_alpha_reduction: float
+        dca_sell_percentage: float
     ) -> Dict[int, bittensor.Balance]:
         """
-        Parallelized DCA (sell/unstake).
-        - subnets_and_percentages: netuid -> proportion
-        - dca_alpha_reduction: how much alpha to sell each iteration (in TAO)
+        Parallelized DCA (sell/unstake) using a per-iteration sell percentage.
+
+        - subnets_and_percentages: netuid -> portion of current alpha to sell in total.
+          (e.g. 0.5 means sell 50% of your current alpha on that netuid)
+        - dca_sell_percentage: portion to sell each iteration from what remains *to be sold*.
+          (e.g. 0.2 means each iteration sells 20% of the portion we still need to sell.)
         """
+        # Optionally, if user passes e.g. `--sell_percentage 100` to mean 1.0 fraction, adjust here:
+        if dca_sell_percentage > 1.0:
+            dca_sell_percentage /= 100.0
+
+        # Current stake for each netuid
         alpha_per_subnet = {}
         for netuid in subnets_and_percentages:
             alpha_per_subnet[netuid] = await self.staker.get_alpha_balance(netuid)
 
-        print("Subnet Stakes:")
-        print(alpha_per_subnet)
+        print("Subnet Stakes (before selling):")
+        for netuid, alpha in alpha_per_subnet.items():
+            print(f"  NetUID {netuid}: {alpha}")
 
-        # Target alpha dict
-        target_alpha_dict = {
-            netuid: alpha - alpha * subnets_and_percentages[netuid]
-            for netuid, alpha in alpha_per_subnet.items()
-        }
+        # How much alpha each netuid wants to keep after all sells
+        # (i.e. total alpha minus the portion to sell)
+        target_alpha_dict = {}
+        for netuid, current_alpha in alpha_per_subnet.items():
+            sell_fraction = subnets_and_percentages[netuid]
+            alpha_to_keep = current_alpha - current_alpha * sell_fraction
+            target_alpha_dict[netuid] = alpha_to_keep
 
         stake_info: Dict[int, bittensor.Balance] = {}
         iteration = 0
@@ -138,17 +144,31 @@ class InvestmentManager:
             tasks = []
             for netuid, current_alpha in alpha_per_subnet.items():
                 target_alpha = target_alpha_dict[netuid]
-                reduction_balance = bittensor.Balance.from_tao(dca_alpha_reduction)
+                # If we're already at or below the target, no action needed
+                if current_alpha <= target_alpha:
+                    continue
 
-                # If current alpha is above target alpha + reduction_balance, unstake
-                if current_alpha > (target_alpha + reduction_balance):
+                # How much alpha is still left to sell
+                alpha_left_to_sell = current_alpha - target_alpha
+                # This iteration we sell dca_sell_percentage of that leftover portion
+                iteration_sell_amount = alpha_left_to_sell * dca_sell_percentage
+
+                # If this iteration_sell_amount is tiny or puts us below the target, clamp
+                if (current_alpha - iteration_sell_amount) < target_alpha:
+                    iteration_sell_amount = alpha_left_to_sell
+
+                # If there's anything > 0 to sell, queue the task
+                if iteration_sell_amount > 0:
                     old_stake = current_alpha
-                    tasks.append(asyncio.create_task(
-                        self._unstake_and_fetch(netuid, dca_alpha_reduction, old_stake)
-                    ))
+                    tasks.append(
+                        asyncio.create_task(
+                            self._unstake_and_fetch(netuid, iteration_sell_amount, old_stake)
+                        )
+                    )
 
+            # If no tasks, we are done
             if not tasks:
-                print("All subnets are at or below their target alpha distribution. Stopping.\n")
+                print("All subnets have reached or are below their target alpha. Stopping.\n")
                 break
 
             results = await asyncio.gather(*tasks)
@@ -185,6 +205,7 @@ class InvestmentManager:
                 f"{color_value(float(tao_balance.tao), decimals=9)}\n"
             )
 
+            # Wait for the next block before the next iteration
             await self.staker.subtensor.wait_for_block()
 
         return stake_info
@@ -192,12 +213,14 @@ class InvestmentManager:
     async def _unstake_and_fetch(
         self,
         netuid: int,
-        dca_alpha_reduction: float,
+        sell_amount: float,
         old_stake: bittensor.Balance
     ):
+        """
+        Sell alpha_amount (in TAO terms).
+        """
         subnet_info = await self.staker.subtensor.subnet(netuid)
-        # Sell alpha amount (in TAO terms)
-        await self.staker.sell_alpha(netuid=netuid, alpha_amount=dca_alpha_reduction)
+        await self.staker.sell_alpha(netuid=netuid, alpha_amount=sell_amount)
         new_stake = await self.staker.get_alpha_balance(netuid)
         alpha_diff = float(new_stake.tao) - float(old_stake.tao)
         return netuid, old_stake, new_stake, alpha_diff, subnet_info.price

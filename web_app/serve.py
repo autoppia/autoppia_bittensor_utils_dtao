@@ -51,7 +51,7 @@ async def get_info() -> Dict[str, Any]:
         state = json.load(f)
 
     # Prepare subtensor and wallet
-    subtensor = await bittensor.async_subtensor(network='test')
+    subtensor = await bittensor.async_subtensor().initialize()
     wallet = get_my_wallet()
 
     # 1) Get all StakeInfo for this coldkey

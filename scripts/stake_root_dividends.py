@@ -16,7 +16,7 @@ load_dotenv()
 
 async def main(validator_hotkey:str):
 
-    subtensor = await bittensor.async_subtensor(network='test')
+    subtensor = await bittensor.async_subtensor().initialize()
     my_wallet = get_my_wallet()
 
     staker = SubnetStaker(wallet=my_wallet, subtensor=subtensor)
