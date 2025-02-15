@@ -20,7 +20,7 @@ python3 -m pip install -e .
 pip install -r requirements.txt
 ```
 
-3. Set wallet password in `.env` (see `.env.template`)
+3. Set wallet password in `.env` (see `.env.example`)
 
 ## Investment Scripts
 
