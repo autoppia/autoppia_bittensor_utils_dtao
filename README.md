@@ -70,7 +70,7 @@ Options:
 - `--percentages`: Reduction percentage per subnet
 - `--reduction`: Total reduction amount
 
-### 4. Stake Root Dividends (`stake_root_dividends.py`)
+### 4. Stake Root Dividends (`stake_root_dividends.py`)(EXPERIMENTAL!)
 Automatically reinvests validator dividends.
 
 ```bash
